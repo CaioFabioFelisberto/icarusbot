@@ -26,9 +26,18 @@ user_states = {}
 user_chats = {}
 
 
-@bot.message_handler(commands=['start', 'help'])
+@bot.message_handler(commands=['start'])
 async def start(msg):
     await bot.reply_to(msg, "Olá! Eu sou um bot amigável que pode conversar e fornecer diversas informações. Use o comando /menu para ver as opções disponíveis.")
+
+@bot.message_handler(commands=['help'])
+async def help(msg):
+    await bot.reply_to(msg, "Aqui estão os comandos disponíveis:\n\n"
+                       "/start - Inicia o bot e mostra uma mensagem de boas-vindas.\n"
+                       "/help - Exibe esta mensagem de ajuda.\n"
+                       "/menu - Mostra o menu principal com as opções disponíveis.\n"
+                       "/task <descrição> - Adiciona uma nova tarefa.\n"
+                       "/tasks - Exibe a lista de tarefas.")
 
 @bot.message_handler(commands=['menu'])
 async def show_menu(msg):
@@ -152,7 +161,7 @@ async def handle_gemini_chat(msg):
     chat_id = msg.chat.id
 
     if chat_id not in user_chats:
-        user_chats[chat_id] = ai_client.chats.create(model='gemini-3.5-flash-lite')
+        user_chats[chat_id] = ai_client.chats.create(model='gemini-2.5-flash')
 
     chat_session = user_chats[chat_id]
 
@@ -176,7 +185,7 @@ async def handle_gemini_voice(msg):
     chat_id = msg.chat.id
 
     if chat_id not in user_chats:
-        user_chats[chat_id] = ai_client.chats.create(model='gemini-3.5-flash-lite')
+        user_chats[chat_id] = ai_client.chats.create(model='gemini-2.5-flash')
 
     chat_session = user_chats[chat_id]
 
