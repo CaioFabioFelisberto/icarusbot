@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from google.genai import types
 from src.services.gemini import send_message_to_gemini, create_user_chat_session
 from src.services.db import get_user
@@ -31,7 +32,7 @@ def register_ai_handlers(bot, ai_client, user_chats, user_states):
             )
             await bot.reply_to(msg, response_text, parse_mode='Markdown')
         except Exception as e:
-            print(f"Erro no chat do Gemini: {e}")
+            logging.error(f"Erro no chat do Gemini: {e}")
             await bot.reply_to(
                 msg, 
                 "Houve um erro ao processar sua mensagem. Por favor, tente novamente mais tarde."
@@ -60,7 +61,7 @@ def register_ai_handlers(bot, ai_client, user_chats, user_states):
             
             await bot.reply_to(msg, response_text, parse_mode='Markdown')
         except Exception as e:
-            print(f"Erro no chat de voz do Gemini: {e}")
+            logging.error(f"Erro no chat de voz do Gemini: {e}")
             await bot.reply_to(
                 msg, 
                 "Houve um erro ao processar sua mensagem de voz. Por favor, tente novamente mais tarde."

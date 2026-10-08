@@ -3,6 +3,7 @@ from datetime import datetime
 from src.services.db import get_all_users
 from src.services.weather import get_weather
 from src.services.money import get_financial_summary
+import logging
 
 async def send_daily_briefing(bot):
     """
@@ -30,17 +31,17 @@ async def send_daily_briefing(bot):
             await bot.send_message(chat_id, message, parse_mode="Markdown")
             await asyncio.sleep(0.5)
         except Exception as e:
-            print(f"Erro ao enviar alerta para {chat_id}: {e}")
+            logging.error(f"Erro ao enviar alerta para {chat_id}: {e}")
 
 async def start_scheduler(bot):
     """
     Loop que monitora o horário em segundo plano para disparar às 08:00.
     """
-    print("Agendador de Triggers iniciado!")
+    logging.info("Agendador de Triggers iniciado!")
     while True:
         now = datetime.now()
         if now.hour == 8 and now.minute == 0:
-            print("Executando disparos do resumo matinal...")
+            logging.info("Executando disparos do resumo matinal...")
             await send_daily_briefing(bot)
             await asyncio.sleep(60)
             

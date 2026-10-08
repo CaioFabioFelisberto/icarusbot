@@ -2,6 +2,7 @@ from src.keyboards.menu import get_main_menu_markup, get_back_markup
 from src.services.weather import get_weather
 from src.services.money import get_financial_summary
 from src.services.news import get_latest_news
+from src.services.db import get_user
 
 def register_menu_handlers(bot, user_states):
     @bot.message_handler(commands=['menu'])
@@ -19,13 +20,26 @@ def register_menu_handlers(bot, user_states):
         message_id = call.message.message_id
 
         if call.data == "opt_1":
-            user_states[chat_id] = 'awaiting_city'
-            await bot.edit_message_text(
-                chat_id=chat_id,
-                message_id=message_id,
-                text="Digite o nome da cidade para ver a previsão do clima:",
-                reply_markup=get_back_markup()
-            )
+            user = get_user(chat_id)
+            if user and user.get('default_city'):
+                city = user['default_city']
+                await bot.send_chat_action(chat_id, 'typing')
+                weather_info = get_weather(city)
+                await bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    text=f"🌍 **Clima em {city}:**\n\n{weather_info}",
+                    parse_mode='Markdown',
+                    reply_markup=get_back_markup()
+                )
+            else:
+                user_states[chat_id] = 'awaiting_city'
+                await bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    text="Digite o nome da cidade para ver a previsão do clima:",
+                    reply_markup=get_back_markup()
+                )
 
         elif call.data == "opt_2":
             financial_summary = get_financial_summary()

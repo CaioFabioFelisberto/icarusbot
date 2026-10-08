@@ -1,14 +1,14 @@
 # 🦅 IcarusBot
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-%20v2.0-orange.svg)](https://github.com/)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-%20v2.1-orange.svg)](https://github.com/)
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4.svg?logo=telegram&logoColor=white)](https://core.telegram.org/bots)
 
-Bot assíncrono para Telegram desenvolvido em Python, com uma interface interativa para consultar informações em tempo real, organizar tarefas e conversar com um modelo de inteligência artificial. Esta é a versão **v2.0**, um release principal do projeto.
+Bot assíncrono para Telegram desenvolvido em Python, com uma interface interativa para consultar informações em tempo real, organizar tarefas e conversar com um modelo de inteligência artificial. Esta é a versão **v2.1**, com melhorias de observabilidade e integração entre o perfil do usuário e a consulta de clima.
 
 ## Funcionalidades
 
-- **Consulta de clima por cidade:** o usuário escolhe a opção de clima no menu e informa uma cidade. O bot mantém um estado temporário (`awaiting_city`) para concluir o fluxo interativo.
+- **Consulta de clima por cidade:** o usuário escolhe a opção de clima no menu e o bot utiliza automaticamente a cidade padrão salva no perfil via `/setcidade`, sem solicitar entrada manual.
 - **Painel de cotações expandido:** o antigo módulo de dólar foi atualizado para o `money.py`, um painel financeiro completo que exibe Dólar (USD), Euro (EUR) e Bitcoin (BTC) em uma única consulta otimizada à [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas), com valores de compra, venda, máxima e mínima.
 - **Notícias em tempo real:** utiliza [Playwright](https://playwright.dev/) com Chromium em modo headless para acessar o [G1](https://g1.globo.com/), coletar as cinco primeiras manchetes e retornar os respectivos links.
 - **Bate-papo inteligente:** integra a API do Google Gemini por meio do Google GenAI SDK, mantendo uma sessão de chat por usuário. Falhas HTTP 503 são tratadas com novas tentativas e espera progressiva (*retry/backoff*).
@@ -20,6 +20,13 @@ Bot assíncrono para Telegram desenvolvido em Python, com uma interface interati
 - **Personalização dinâmica da IA:** o Gemini recebe as preferências persistidas do usuário (nome, cidade padrão e moeda) nas instruções do sistema, mantendo as respostas contextualizadas sem reapresentação.
 - **Arquitetura modular:** os handlers foram separados por domínio em `src/handlers/` e são registrados centralmente por `__init__.py`.
 - **Alertas e triggers:** um worker assíncrono envia diariamente o resumo matinal de clima e finanças; o envio pode ser validado manualmente com `/teste_alerta`.
+- **Observabilidade e logging estruturado:** registra eventos com o módulo nativo `logging`, salva os registros em `logs/icarusbot.log` e reduz a verbosidade de bibliotecas de terceiros.
+
+## Changelog v2.1 🚀
+
+- **Observabilidade e logging estruturado:** substituição dos `print`s por logs estruturados usando o módulo nativo `logging` do Python, centralizado em [`src/services/logger.py`](./src/services/logger.py).
+- **Persistência dos logs:** criação automática da pasta `logs/` e salvamento dos registros em `logs/icarusbot.log`, com supressão de logs ruidosos de bibliotecas de terceiros.
+- **Clima integrado ao perfil:** a opção `opt_1` do menu consulta `get_user` no SQLite para recuperar a cidade padrão definida via `/setcidade` e retorna a previsão imediatamente, sem pedir uma nova entrada.
 
 ## Changelog v2.0 🚀
 
@@ -47,7 +54,7 @@ As versões exatas das dependências estão registradas em [`requirements.txt`](
 
 ## Estrutura do projeto
 
-Na v2.0, o registro dos handlers é centralizado em [`src/handlers/__init__.py`](./src/handlers/__init__.py), enquanto os teclados, serviços e dados persistidos estão organizados em seus respectivos módulos.
+Na v2.1, o registro dos handlers continua centralizado em [`src/handlers/__init__.py`](./src/handlers/__init__.py), enquanto os teclados, serviços, logs e dados persistidos estão organizados em seus respectivos módulos.
 
 ```text
 .
@@ -55,6 +62,8 @@ Na v2.0, o registro dos handlers é centralizado em [`src/handlers/__init__.py`]
 ├── requirements.txt                # Dependências Python fixadas
 ├── .env.example                    # Modelo de configuração local
 ├── .gitignore
+├── logs/                           # Logs gerados em execução (ignorada pelo Git)
+│   └── icarusbot.log              # Arquivo de log estruturado
 └── src/
     ├── __init__.py
     ├── database/
@@ -73,6 +82,7 @@ Na v2.0, o registro dos handlers é centralizado em [`src/handlers/__init__.py`]
         ├── __init__.py
         ├── db.py                   # Cadastro e consulta de perfis no SQLite
         ├── gemini.py               # Sessão Gemini e retry para erros 503
+        ├── logger.py               # Configuração do logging estruturado
         ├── money.py                # Painel USD, EUR e BTC via AwesomeAPI
         ├── news.py                 # Scraping assíncrono do G1 com Playwright
         ├── todo.py                 # Operações da To-Do List em JSON
@@ -192,13 +202,15 @@ O arquivo [`.env.example`](./.env.example) contém a estrutura mínima necessár
 
 Não coloque chaves, tokens ou outros segredos diretamente no código-fonte. O arquivo `.env` já está ignorado pelo Git.
 
-## Observações da v2.0
+## Observações da v2.1
 
 - A disponibilidade e o formato das notícias dependem do HTML atual do G1 e podem exigir ajustes caso o site mude seus seletores.
 - As cotações, as notícias e a interpretação de áudios dependem de serviços externos e podem sofrer indisponibilidade ou limitação temporária.
 - As sessões ativas do Gemini e os estados dos menus são mantidos em memória; reiniciar o processo encerra essas sessões, mas não remove os perfis do SQLite.
 - O cadastro de perfil é criado automaticamente no primeiro uso de `/start` e fica persistido em `src/database/users.db`.
+- A opção de clima do menu usa a cidade padrão do perfil; configure-a antes com `/setcidade <cidade>`.
 - As tarefas são persistidas localmente em `src/database/todo.json` e permanecem associadas ao `chat_id`.
+- Os logs são gravados em `logs/icarusbot.log`. A pasta `logs/` é ignorada pelo Git e deve ser criada automaticamente durante a execução.
 - O resumo matinal é disparado pelo worker em segundo plano às 08:00, no horário local da máquina que executa o bot.
 - O bot utiliza `polling`, portanto o processo precisa permanecer em execução para receber atualizações.
 
@@ -207,7 +219,7 @@ Não coloque chaves, tokens ou outros segredos diretamente no código-fonte. O a
 - [X] **Handlers** Separar os handlers por domínio em `src/handlers/`.
 - [ ] **Testes Automatizados** Adicionar testes automatizados para os serviços.
 - [X] **Perfis de usuário** Persistir preferências e dados de cadastro em SQLite.
-- [ ] **Loggin** Adicionar observabilidade, logging estruturado e uma estratégia de deploy.
+- [X] **Logging** Adicionar observabilidade, logging estruturado e uma estratégia de deploy.
 - [X] **Sistema de Cadastro e Autenticação:** Persistência e gestão de perfis de utilizadores para personalizar a experiência.
 - [X] **Sistema de Alertas e Monitorização (Triggers):** Resumo matinal diário com clima e finanças, além do comando `/teste_alerta`.
 - [x] **Gestor de Tarefas (To-Do List por `chat_id`):** Organização de tarefas individuais vinculadas ao ID de cada chat no Telegram.

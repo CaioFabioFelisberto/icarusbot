@@ -32,3 +32,6 @@ from src.services.triggers import (
     send_daily_briefing,
     start_scheduler
 )
+from src.services.logger import (
+    setup_logger
+)

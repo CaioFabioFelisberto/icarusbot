@@ -1,7 +1,18 @@
+# Ambiente virtual
 .venv/
 .env
+
+# Cache do Python
 __pycache__/
 *.pyc
+
+# Arquivos de configuração do editor
 .DS_Store
+
+# Banco de dados e arquivos de configuração
 todo.json
 users.db
+
+# Pasta de logs
+logs/
+*.log

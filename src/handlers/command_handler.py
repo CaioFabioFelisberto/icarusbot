@@ -1,5 +1,6 @@
 from src.services import save_user, get_user
 from src.services import send_daily_briefing
+import logging
 
 def register_command_handlers(bot, user_chats):
     @bot.message_handler(commands=['start'])
@@ -17,7 +18,7 @@ def register_command_handlers(bot, user_chats):
                 currency="USD",
                 role="user"
             )
-            print(f"Novo usuário cadastrado no SQLite: {first_name} ({chat_id})")
+            logging.info(f"Novo usuário cadastrado no SQLite: {first_name} ({chat_id})")
 
         welcome_message = (
             f"Olá, **{first_name}**! Bem-vindo ao **IcarusBot**.\n\n"
