@@ -1,10 +1,10 @@
 # 🦅 IcarusBot
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-%20v2.1-orange.svg)](https://github.com/)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-%20v2.1.1-orange.svg)](https://github.com/)
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4.svg?logo=telegram&logoColor=white)](https://core.telegram.org/bots)
 
-Bot assíncrono para Telegram desenvolvido em Python, com uma interface interativa para consultar informações em tempo real, organizar tarefas e conversar com um modelo de inteligência artificial. Esta é a versão **v2.1**, com melhorias de observabilidade e integração entre o perfil do usuário e a consulta de clima.
+Bot assíncrono para Telegram desenvolvido em Python, com uma interface interativa para consultar informações em tempo real, organizar tarefas e conversar com um modelo de inteligência artificial. Esta é a versão **v2.1.1 (Patch Release)**, com uma suíte completa de testes automatizados para os serviços do sistema.
 
 ## Funcionalidades
 
@@ -21,6 +21,17 @@ Bot assíncrono para Telegram desenvolvido em Python, com uma interface interati
 - **Arquitetura modular:** os handlers foram separados por domínio em `src/handlers/` e são registrados centralmente por `__init__.py`.
 - **Alertas e triggers:** um worker assíncrono envia diariamente o resumo matinal de clima e finanças; o envio pode ser validado manualmente com `/teste_alerta`.
 - **Observabilidade e logging estruturado:** registra eventos com o módulo nativo `logging`, salva os registros em `logs/icarusbot.log` e reduz a verbosidade de bibliotecas de terceiros.
+
+## Changelog v2.1.1 🚀
+
+- **Suíte completa de testes automatizados:** implementação de testes unitários e de integração com `pytest` e `pytest-asyncio`, cobrindo 100% dos serviços em `src/services/`:
+  - `test_db.py`: validação do fluxo CRUD e do mapeamento de perfis no SQLite.
+  - `test_todo.py`: teste de integração do ciclo de vida de tarefas (adicionar, alternar status e excluir).
+  - `test_weather.py`: validação do contrato do serviço de previsão do tempo.
+  - `test_money.py`: teste de formatação e integridade do resumo financeiro.
+  - `test_news.py`: validação assíncrona da busca e do parsing do feed de notícias.
+  - `test_gemini.py`: teste de inicialização e injeção de contexto/*System Instructions* do Gemini SDK.
+  - `test_triggers.py`: teste de montagem e disparo do resumo matinal em segundo plano com mocks de bot.
 
 ## Changelog v2.1 🚀
 
@@ -54,7 +65,7 @@ As versões exatas das dependências estão registradas em [`requirements.txt`](
 
 ## Estrutura do projeto
 
-Na v2.1, o registro dos handlers continua centralizado em [`src/handlers/__init__.py`](./src/handlers/__init__.py), enquanto os teclados, serviços, logs e dados persistidos estão organizados em seus respectivos módulos.
+Na v2.1.1, o registro dos handlers continua centralizado em [`src/handlers/__init__.py`](./src/handlers/__init__.py), enquanto os teclados, serviços, testes, logs e dados persistidos estão organizados em seus respectivos módulos.
 
 ```text
 .
@@ -64,6 +75,14 @@ Na v2.1, o registro dos handlers continua centralizado em [`src/handlers/__init_
 ├── .gitignore
 ├── logs/                           # Logs gerados em execução (ignorada pelo Git)
 │   └── icarusbot.log              # Arquivo de log estruturado
+├── tests/                          # Suíte de testes unitários e de integração
+│   ├── test_db.py                  # CRUD e mapeamento de perfis no SQLite
+│   ├── test_gemini.py              # Inicialização e contexto do Gemini SDK
+│   ├── test_money.py               # Formatação e integridade financeira
+│   ├── test_news.py                # Busca e parsing assíncrono de notícias
+│   ├── test_todo.py                # Ciclo de vida das tarefas
+│   ├── test_triggers.py            # Resumo matinal em segundo plano
+│   └── test_weather.py             # Contrato do serviço meteorológico
 └── src/
     ├── __init__.py
     ├── database/
@@ -176,6 +195,18 @@ python main.py
 
 Abra a conversa com o bot no Telegram e use `/start` ou `/help`. Em seguida, use `/menu` para acessar clima, painel de cotações e notícias. Mensagens de texto ou voz que não estiverem em um fluxo interativo são encaminhadas ao Gemini.
 
+## Testes automatizados
+
+Instale as dependências de testes e execute a suíte completa em modo verboso:
+
+```bash
+# Instalar dependências de testes
+pip install pytest pytest-asyncio
+
+# Executar a suíte de testes em modo verboso
+pytest -v
+```
+
 ## Comandos disponíveis
 
 | Comando | Descrição |
@@ -202,7 +233,7 @@ O arquivo [`.env.example`](./.env.example) contém a estrutura mínima necessár
 
 Não coloque chaves, tokens ou outros segredos diretamente no código-fonte. O arquivo `.env` já está ignorado pelo Git.
 
-## Observações da v2.1
+## Observações da v2.1.1
 
 - A disponibilidade e o formato das notícias dependem do HTML atual do G1 e podem exigir ajustes caso o site mude seus seletores.
 - As cotações, as notícias e a interpretação de áudios dependem de serviços externos e podem sofrer indisponibilidade ou limitação temporária.
@@ -217,7 +248,7 @@ Não coloque chaves, tokens ou outros segredos diretamente no código-fonte. O a
 ## Próximos passos
 
 - [X] **Handlers** Separar os handlers por domínio em `src/handlers/`.
-- [ ] **Testes Automatizados** Adicionar testes automatizados para os serviços.
+- [x] **Testes Automatizados** Cobertura unitária e de integração dos serviços com `pytest` e `pytest-asyncio`.
 - [X] **Perfis de usuário** Persistir preferências e dados de cadastro em SQLite.
 - [X] **Logging** Adicionar observabilidade, logging estruturado e uma estratégia de deploy.
 - [X] **Sistema de Cadastro e Autenticação:** Persistência e gestão de perfis de utilizadores para personalizar a experiência.

@@ -16,3 +16,6 @@ users.db
 # Pasta de logs
 logs/
 *.log
+
+# Arquivos de teste
+.pytest_cache/
